@@ -9,7 +9,7 @@ import (
 )
 
 func TestOpenFileCsv(t *testing.T) {
-	file, err := file.NewFilePath("../../file/test.csv")
+	file, err := file.NewFilePath("../../example/file/test.csv")
 	if err != nil {
 		t.Errorf("Expected no error but got %s", err)
 	}
@@ -28,7 +28,7 @@ func TestOpenFileCsv(t *testing.T) {
 }
 
 func TestTotalRowCountInCsvFile(t *testing.T) {
-	file, err := file.NewFilePath("../../file/test.csv")
+	file, err := file.NewFilePath("../../example/file/test.csv")
 	if err != nil {
 		t.Errorf("Expected no error but got %s", err)
 	}
