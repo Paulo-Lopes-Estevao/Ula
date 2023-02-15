@@ -7,6 +7,7 @@ import (
 	"os"
 	"testing"
 
+	csvIn "github.com/ebizno/Ula/internal/csv"
 	"github.com/ebizno/Ula/internal/file"
 )
 
@@ -217,4 +218,37 @@ func ConvertCsvToJson(fileData [][]string, positionEmail int) []Data {
 
 func removeHeaderEmail(email string) bool {
 	return email != "Email" && email != "email"
+}
+
+func TestCSV(t *testing.T) {
+	file, err := file.NewFilePath("../../example/file/test.csv")
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+
+	openFile, err := os.Open(file.Path)
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+	fileData, err := csv.NewReader(openFile).ReadAll()
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+
+	csvData := csvIn.NewCsv(fileData)
+
+	if err := csvData.CheckIfTheEmailHeaderExists(); err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+
+	data := csvData.AddCsvDataInStructJson()
+	dataJson, err := csvIn.CsvToJson(data)
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+	for _, row := range dataJson {
+		if row.Email != "" {
+			t.Log(row.Email)
+		}
+	}
 }
