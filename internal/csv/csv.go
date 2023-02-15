@@ -3,6 +3,10 @@ package csv
 import (
 	"encoding/json"
 	"errors"
+	"strings"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 type DataCsv struct {
@@ -12,6 +16,14 @@ type DataCsv struct {
 type Csv struct {
 	FileData [][]string
 }
+
+const emailHeader = "email"
+
+var (
+	titleUpper  = strings.ToUpper(emailHeader)
+	targetTitle = cases.Title(language.English, cases.Compact).String(emailHeader)
+	targetLower = strings.ToLower(emailHeader)
+)
 
 func NewCsv(fileData [][]string) *Csv {
 	return &Csv{
@@ -26,46 +38,71 @@ func (c *Csv) TotalRowCountInCsvFile() int {
 func (c *Csv) PositionOfTheEmailInTheCsvFile() int {
 	var positionEmail int
 	for _, row := range c.FileData {
-		for c, col := range row {
-			if col == "email" || col == "Email" {
-				positionEmail = c
-			}
+		positionEmail = searchThePositionOfTheEmailHeader(row)
+		if positionEmail != -1 {
+			return positionEmail
 		}
 	}
 	return positionEmail
 }
 
-func (c *Csv) CheckIfTheEmailHeaderExists() error {
+func searchThePositionOfTheEmailHeader(row []string) int {
+	for c, col := range row {
+		if checkIfTextEmailEquals(col) {
+			return c
+		}
+	}
+	return -1
+}
+
+func checkIfTextEmailEquals(email string) bool {
+	return email == titleUpper || email == targetTitle || email == targetLower
+}
+
+func searchForEmailsInTheposition(row []string, data *DataCsv, targetPosition int) {
+	for c, field := range row {
+		if c == targetPosition {
+			if removeHeaderEmail(field) {
+				data.Email = field
+			}
+		}
+	}
+}
+
+func (c *Csv) checkIfTheEmailHeaderExists() error {
 	positionEmail := c.PositionOfTheEmailInTheCsvFile()
+	if positionEmail == -1 {
+		return errors.New("email header not found")
+	}
 	for _, row := range c.FileData {
-		if row[positionEmail] == "email" || row[positionEmail] == "Email" {
+		if checkIfTextEmailEquals(row[positionEmail]) {
 			return nil
 		} else {
-			return errors.New("email field not found")
+			return errors.New("email header not found")
 		}
 	}
 	return nil
 }
 
-func (c *Csv) AddCsvDataInStructJson() []DataCsv {
-	positionEmail := c.PositionOfTheEmailInTheCsvFile()
-	var dataList []DataCsv
-	for _, row := range c.FileData {
-		var data DataCsv
-		for index, field := range row {
-			if index == positionEmail {
-				if removeHeaderEmail(field) {
-					data.Email = field
-				}
-			}
-		}
-		dataList = append(dataList, data)
+func (c *Csv) AddCsvDataInStructJson() ([]DataCsv, error) {
+
+	if err := c.checkIfTheEmailHeaderExists(); err != nil {
+		return nil, err
 	}
-	return dataList
+
+	positionEmail := c.PositionOfTheEmailInTheCsvFile()
+
+	dataList := []DataCsv{}
+	for _, row := range c.FileData {
+		data := &DataCsv{}
+		searchForEmailsInTheposition(row, data, positionEmail)
+		dataList = append(dataList, *data)
+	}
+	return dataList, nil
 }
 
 func removeHeaderEmail(email string) bool {
-	return email != "Email" && email != "email"
+	return email != titleUpper && email != targetTitle && email != targetLower
 }
 
 func CsvToJson(dataCsv []DataCsv) ([]DataCsv, error) {
