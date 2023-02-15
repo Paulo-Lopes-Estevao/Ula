@@ -237,11 +237,10 @@ func TestCSV(t *testing.T) {
 
 	csvData := csvIn.NewCsv(fileData)
 
-	if err := csvData.CheckIfTheEmailHeaderExists(); err != nil {
+	data, err := csvData.AddCsvDataInStructJson()
+	if err != nil {
 		t.Errorf("Expected no error but got %s", err)
 	}
-
-	data := csvData.AddCsvDataInStructJson()
 	dataJson, err := csvIn.CsvToJson(data)
 	if err != nil {
 		t.Errorf("Expected no error but got %s", err)
