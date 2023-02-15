@@ -8,7 +8,7 @@ import (
 
 func configPath() string {
 	_, b, _, _ := runtime.Caller(0)
-	return filepath.Join(filepath.Dir(b), "../../file", "test.csv")
+	return filepath.Join(filepath.Dir(b), "../../example/file", "test.csv")
 }
 
 func TestFilePath(t *testing.T) {
