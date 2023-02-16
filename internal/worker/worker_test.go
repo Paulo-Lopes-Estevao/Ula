@@ -83,3 +83,48 @@ func TestCreateWorkerQtyWithTheExisteingEmailQtyInTheCsvFile(t *testing.T) {
 		}()
 	}
 }
+
+func TestReadExisteingEmailInTheCsvFile(t *testing.T) {
+
+	file, err := file.NewFilePath("../../example/file/test.csv")
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+
+	openFile, err := os.Open(file.Path)
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+
+	defer openFile.Close()
+
+	fileData, err := csv.NewReader(openFile).ReadAll()
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+
+	csvData := csvIn.NewCsv(fileData)
+
+	amountOfEmail := csvData.TotalRowCountInCsvFile()
+
+	data, err := csvData.AddCsvDataInStructJson()
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+
+	dataJson, err := csvIn.CsvToJson(data)
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+
+	waitgroup.Add(amountOfEmail)
+
+	for i, v := range dataJson {
+		go emailsReadByTheWorkers(v, i)
+	}
+}
+
+func emailsReadByTheWorkers(data csvIn.DataCsv, index int) {
+	defer waitgroup.Done()
+	fmt.Println(index, "- Emails: ", data.Email)
+}
