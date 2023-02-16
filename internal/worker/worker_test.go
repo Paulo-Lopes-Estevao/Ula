@@ -1,9 +1,14 @@
 package worker_test
 
 import (
+	"encoding/csv"
 	"fmt"
+	"os"
 	"sync"
 	"testing"
+
+	csvIn "github.com/ebizno/Ula/internal/csv"
+	"github.com/ebizno/Ula/internal/file"
 )
 
 var waitgroup sync.WaitGroup
@@ -37,4 +42,44 @@ func TestCreateWorkerQuantityWithExistingEmailQuantity(t *testing.T) {
 		}()
 	}
 
+}
+
+func TestCreateWorkerQtyWithTheExisteingEmailQtyInTheCsvFile(t *testing.T) {
+	// open csv file
+	// read csv file
+	// get the length of email
+	// create worker quantity with the existing email quantity in the csv file
+
+	file, err := file.NewFilePath("../../example/file/test.csv")
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+
+	openFile, err := os.Open(file.Path)
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+
+	defer openFile.Close()
+
+	fileData, err := csv.NewReader(openFile).ReadAll()
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+
+	csvData := csvIn.NewCsv(fileData)
+
+	amountOfEmail := csvData.TotalRowCountInCsvFile()
+
+	waitgroup.Add(amountOfEmail)
+
+	sum := 0
+	for i := 0; i < amountOfEmail; i++ {
+		go func() {
+			defer waitgroup.Done()
+			// do something
+			sum += 1
+			fmt.Println("do something", sum)
+		}()
+	}
 }
