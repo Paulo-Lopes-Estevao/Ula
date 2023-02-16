@@ -15,3 +15,16 @@ multiplataform (linux, windows, mac)
 ### Windows
 
 ### Mac
+
+
+## System Design
+
+### Architecture
+
+Image 1 - Architecture
+![alt](doc/img/retry.png)
+
+
+
+Image 2 - Architecture
+![alt](doc/img/retry2.png)
