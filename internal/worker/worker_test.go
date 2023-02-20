@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	csvIn "github.com/ebizno/Ula/internal/csv"
+	"github.com/ebizno/Ula/internal/email"
 	"github.com/ebizno/Ula/internal/file"
 )
 
@@ -127,4 +128,69 @@ func TestReadExisteingEmailInTheCsvFile(t *testing.T) {
 func emailsReadByTheWorkers(data csvIn.DataCsv, index int) {
 	defer waitgroup.Done()
 	fmt.Println(index, "- Emails: ", data.Email)
+}
+
+func TestWorkersSendingEmailsPlain(t *testing.T) {
+	var waitgroup sync.WaitGroup
+	file, err := file.NewFilePath("../../example/file/test.csv")
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+
+	openFile, err := os.Open(file.Path)
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+
+	defer openFile.Close()
+
+	fileData, err := csv.NewReader(openFile).ReadAll()
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+
+	csvData := csvIn.NewCsv(fileData)
+
+	amountOfEmail := csvData.TotalRowCountInCsvFile()
+
+	data, err := csvData.AddCsvDataInStructJson()
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+
+	dataJson, err := csvIn.CsvToJson(data)
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+
+	waitgroup.Add(amountOfEmail)
+
+	for index, v := range dataJson {
+		go sendMail(v, t, index, &waitgroup)
+	}
+
+	waitgroup.Wait()
+
+	fmt.Println("Done")
+
+}
+
+func sendMail(v csvIn.DataCsv, t *testing.T, index int, waitgroup *sync.WaitGroup) {
+	defer waitgroup.Done()
+	if v.Email != "" {
+		fmt.Println("Email: ", v)
+		emailCredential, err := email.NewEmailCredential("ula@gmail.com", "xxxx", 587, "smtp.gmail.com")
+		if err != nil {
+			t.Errorf("Expected no error but got %s", err)
+		}
+
+		body := fmt.Sprintf("Sou Paulo estou a fazer teste de envio de email WORKER %d", index)
+		subject := fmt.Sprintln("Teste Ula")
+
+		email, err := email.NewEmail(v.Email, subject, body, emailCredential)
+		if err != nil {
+			t.Errorf("Expected no error but got %s", err)
+		}
+		email.SendEmailPlain()
+	}
 }
