@@ -137,7 +137,11 @@ func TestGetAllEmailCsv(t *testing.T) {
 
 }
 
-func PositionEmail(t *testing.T, fileData [][]string) int {
+type TestType interface {
+	*testing.T | *testing.B
+}
+
+func PositionEmail[T TestType](t T, fileData [][]string) int {
 	positionEmail := 0
 	for _, row := range fileData {
 		for c, col := range row {
@@ -249,5 +253,105 @@ func TestCSV(t *testing.T) {
 		if row.Email != "" {
 			t.Log(row.Email)
 		}
+	}
+}
+
+func BenchmarkPositionHeaderEmailInFileCsv_Old_1(b *testing.B) {
+	file, err := file.NewFilePath("../../example/file/test.csv")
+	if err != nil {
+		b.Errorf("Expected no error but got %s", err)
+	}
+
+	openFile, err := os.Open(file.Path)
+	if err != nil {
+		b.Errorf("Expected no error but got %s", err)
+	}
+
+	defer openFile.Close()
+
+	if openFile == nil {
+		b.Errorf("Expected openFile to be not nil")
+	}
+
+	fileData, err := csv.NewReader(openFile).ReadAll()
+	if err != nil {
+		b.Errorf("Expected no error but got %s", err)
+	}
+
+	for i := 0; i < b.N; i++ {
+		PositionEmail(b, fileData)
+	}
+}
+
+func BenchmarkPositionHeaderEmailInFileCsv_New_2(b *testing.B) {
+	file, err := file.NewFilePath("../../example/file/test.csv")
+	if err != nil {
+		b.Errorf("Expected no error but got %s", err)
+	}
+
+	openFile, err := os.Open(file.Path)
+	if err != nil {
+		b.Errorf("Expected no error but got %s", err)
+	}
+	fileData, err := csv.NewReader(openFile).ReadAll()
+	if err != nil {
+		b.Errorf("Expected no error but got %s", err)
+	}
+
+	csvData := csvIn.NewCsv(fileData)
+
+	for i := 0; i < b.N; i++ {
+		csvData.PositionOfTheEmailInTheCsvFile()
+	}
+}
+
+func BenchmarkConvertCsvToJson_Old_3(b *testing.B) {
+	file, err := file.NewFilePath("../../example/file/test.csv")
+	if err != nil {
+		b.Errorf("Expected no error but got %s", err)
+	}
+
+	openFile, err := os.Open(file.Path)
+	if err != nil {
+		b.Errorf("Expected no error but got %s", err)
+	}
+
+	defer openFile.Close()
+
+	if openFile == nil {
+		b.Errorf("Expected openFile to be not nil")
+	}
+
+	fileData, err := csv.NewReader(openFile).ReadAll()
+	if err != nil {
+		b.Errorf("Expected no error but got %s", err)
+	}
+
+	positionEmail := PositionEmail(b, fileData)
+
+	for i := 0; i < b.N; i++ {
+		ConvertCsvToJson(fileData, positionEmail)
+	}
+}
+
+func BenchmarkConvertCsvToJson_New_4(b *testing.B) {
+	file, err := file.NewFilePath("../../example/file/test.csv")
+	if err != nil {
+		b.Errorf("Expected no error but got %s", err)
+	}
+
+	openFile, err := os.Open(file.Path)
+	if err != nil {
+		b.Errorf("Expected no error but got %s", err)
+	}
+	fileData, err := csv.NewReader(openFile).ReadAll()
+	if err != nil {
+		b.Errorf("Expected no error but got %s", err)
+	}
+
+	csvData := csvIn.NewCsv(fileData)
+
+	for i := 0; i < b.N; i++ {
+		csvData.AddCsvDataInStructJson()
 	}
 }
