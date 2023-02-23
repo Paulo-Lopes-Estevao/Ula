@@ -8,21 +8,27 @@ import (
 
 func configPath() string {
 	_, b, _, _ := runtime.Caller(0)
-	return filepath.Join(filepath.Dir(b), "../../example/file", "test.csv")
+	return filepath.Join(filepath.Dir(b), "../../example/file", "ula.csv")
 }
 
 func TestFilePath(t *testing.T) {
 
-	basepath := configPath()
-
-	base := filepath.Base(basepath)
-
-	if base != "file" {
-		t.Errorf("Expected base to be 'file' but got %s", base)
+	file, err := NewFilePath("ula.csv")
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
 	}
 
-	if filepath.Clean(basepath) != basepath {
-		t.Errorf("Expected basepath to be clean but got %s", basepath)
+	if file.Path != configPath() {
+		t.Errorf("Expected file.Path to be %s but got %s", configPath(), file.Path)
+	}
+
+	fileOpen, err := file.OpenFile()
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+
+	if fileOpen.Name() != configPath() {
+		t.Errorf("Expected fileOpen.Name() to be %s but got %s", configPath(), fileOpen.Name())
 	}
 
 }
