@@ -12,14 +12,14 @@ import (
 )
 
 func TestOpenFileCsv(t *testing.T) {
-	file, err := file.NewFilePath("../../example/file/test.csv")
+	file, err := file.NewFilePath("ula.csv")
 	if err != nil {
-		t.Errorf("Expected no error but got %s", err)
+		t.Errorf("Expected novvvv error but got %s", err)
 	}
 
-	openFile, err := os.Open(file.Path)
+	openFile, err := file.OpenFile()
 	if err != nil {
-		t.Errorf("Expected no error but got %s", err)
+		t.Errorf("Expected no errorxx but got %s", err)
 	}
 
 	defer openFile.Close()
@@ -31,12 +31,12 @@ func TestOpenFileCsv(t *testing.T) {
 }
 
 func TestTotalRowCountInCsvFile(t *testing.T) {
-	file, err := file.NewFilePath("../../example/file/test.csv")
+	file, err := file.NewFilePath("ula.csv")
 	if err != nil {
 		t.Errorf("Expected no error but got %s", err)
 	}
 
-	openFile, err := os.Open(file.Path)
+	openFile, err := file.OpenFile()
 	if err != nil {
 		t.Errorf("Expected no error but got %s", err)
 	}
@@ -63,7 +63,7 @@ func TestTotalRowCountInCsvFile(t *testing.T) {
 }
 
 func TestGetAllEmailCsvFile(t *testing.T) {
-	file, err := file.NewFilePath("../../example/file/test.csv")
+	file, err := file.NewFilePath("ula.csv")
 	if err != nil {
 		t.Errorf("Expected no error but got %s", err)
 	}
@@ -99,7 +99,7 @@ func TestGetAllEmailCsvFile(t *testing.T) {
 }
 
 func TestGetAllEmailCsv(t *testing.T) {
-	file, err := file.NewFilePath("../../example/file/test.csv")
+	file, err := file.NewFilePath("ula.csv")
 	if err != nil {
 		t.Errorf("Expected no error but got %s", err)
 	}
@@ -158,7 +158,7 @@ type Data struct {
 }
 
 func TestConvertCsvToJson(t *testing.T) {
-	file, err := file.NewFilePath("../../example/file/test.csv")
+	file, err := file.NewFilePath("ula.csv")
 	if err != nil {
 		t.Errorf("Expected no error but got %s", err)
 	}
@@ -225,7 +225,7 @@ func removeHeaderEmail(email string) bool {
 }
 
 func TestCSV(t *testing.T) {
-	file, err := file.NewFilePath("../../example/file/test.csv")
+	file, err := file.NewFilePath("ula.csv")
 	if err != nil {
 		t.Errorf("Expected no error but got %s", err)
 	}
@@ -257,7 +257,7 @@ func TestCSV(t *testing.T) {
 }
 
 func BenchmarkPositionHeaderEmailInFileCsv_Old_1(b *testing.B) {
-	file, err := file.NewFilePath("../../example/file/test.csv")
+	file, err := file.NewFilePath("ula.csv")
 	if err != nil {
 		b.Errorf("Expected no error but got %s", err)
 	}
@@ -284,7 +284,7 @@ func BenchmarkPositionHeaderEmailInFileCsv_Old_1(b *testing.B) {
 }
 
 func BenchmarkPositionHeaderEmailInFileCsv_New_2(b *testing.B) {
-	file, err := file.NewFilePath("../../example/file/test.csv")
+	file, err := file.NewFilePath("ula.csv")
 	if err != nil {
 		b.Errorf("Expected no error but got %s", err)
 	}
@@ -306,7 +306,7 @@ func BenchmarkPositionHeaderEmailInFileCsv_New_2(b *testing.B) {
 }
 
 func BenchmarkConvertCsvToJson_Old_3(b *testing.B) {
-	file, err := file.NewFilePath("../../example/file/test.csv")
+	file, err := file.NewFilePath("ula.csv")
 	if err != nil {
 		b.Errorf("Expected no error but got %s", err)
 	}
@@ -335,7 +335,7 @@ func BenchmarkConvertCsvToJson_Old_3(b *testing.B) {
 }
 
 func BenchmarkConvertCsvToJson_New_4(b *testing.B) {
-	file, err := file.NewFilePath("../../example/file/test.csv")
+	file, err := file.NewFilePath("ula.csv")
 	if err != nil {
 		b.Errorf("Expected no error but got %s", err)
 	}

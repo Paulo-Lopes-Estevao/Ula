@@ -1,8 +1,10 @@
 package csv
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"io"
 	"strings"
 
 	"golang.org/x/text/cases"
@@ -115,5 +117,14 @@ func CsvToJson(dataCsv []DataCsv) ([]DataCsv, error) {
 	json.Unmarshal(jsonData, &data)
 
 	return data, nil
+
+}
+
+func NewReaderFileCsv(r io.Reader) (records [][]string, err error) {
+	fileData, err := csv.NewReader(r).ReadAll()
+	if err != nil {
+		return nil, err
+	}
+	return fileData, nil
 
 }

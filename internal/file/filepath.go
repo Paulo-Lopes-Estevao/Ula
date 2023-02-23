@@ -2,12 +2,22 @@ package file
 
 import (
 	"errors"
+	"os"
 	"path/filepath"
+	"runtime"
 )
 
-type FilePath struct {
-	Path string
-}
+type (
+	IFilePath interface {
+		OpenFile() (*os.File, error)
+		Dir() string
+		FileName() string
+	}
+	FilePath struct {
+		Name string
+		Path string
+	}
+)
 
 var (
 	ErrEmptyFilePath   = errors.New("empty file path")
@@ -15,25 +25,47 @@ var (
 	ErrFileNotCsv      = errors.New("file is not a csv")
 )
 
-func NewFilePath(path string) (*FilePath, error) {
-	p := &FilePath{
-		Path: path,
+func NewFilePath(filename string) (*FilePath, error) {
+	file := &FilePath{
+		Name: filename,
+		Path: PathRoot(filename),
 	}
 
-	if err := p.validate(); err != nil {
+	if err := file.validate(); err != nil {
 		return nil, err
 	}
 
-	if !p.validFileIsCsv() {
+	if !file.validFileIsCsv() {
 		return nil, ErrFileNotCsv
 	}
 
-	return p, nil
+	return file, nil
+}
 
+func PathRoot(filename string) string {
+	_, b, _, _ := runtime.Caller(0)
+	return filepath.Join(filepath.Dir(b), "/../../example/file", filename)
+}
+
+func (f *FilePath) OpenFile() (*os.File, error) {
+	file, err := os.Open(f.Path)
+	if err != nil {
+		return nil, err
+	}
+
+	if file == nil {
+		return nil, errors.New("file is nil")
+	}
+
+	return file, nil
+}
+
+func (f *FilePath) Dir() string {
+	return filepath.Dir(f.Path)
 }
 
 func (f *FilePath) FileName() string {
-	return filepath.Base(f.Path)
+	return f.Name
 }
 
 func (f *FilePath) validate() error {
@@ -48,5 +80,5 @@ func (f *FilePath) validate() error {
 }
 
 func (f *FilePath) validFileIsCsv() bool {
-	return filepath.Ext(f.Path) == ".csv"
+	return filepath.Ext(f.Name) == ".csv"
 }

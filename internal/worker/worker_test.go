@@ -10,6 +10,7 @@ import (
 	csvIn "github.com/ebizno/Ula/internal/csv"
 	"github.com/ebizno/Ula/internal/email"
 	"github.com/ebizno/Ula/internal/file"
+	"github.com/ebizno/Ula/internal/worker"
 )
 
 var waitgroup sync.WaitGroup
@@ -51,7 +52,7 @@ func TestCreateWorkerQtyWithTheExisteingEmailQtyInTheCsvFile(t *testing.T) {
 	// get the length of email
 	// create worker quantity with the existing email quantity in the csv file
 
-	file, err := file.NewFilePath("../../example/file/test.csv")
+	file, err := file.NewFilePath("../../example/file/ula.csv")
 	if err != nil {
 		t.Errorf("Expected no error but got %s", err)
 	}
@@ -87,7 +88,7 @@ func TestCreateWorkerQtyWithTheExisteingEmailQtyInTheCsvFile(t *testing.T) {
 
 func TestReadExisteingEmailInTheCsvFile(t *testing.T) {
 
-	file, err := file.NewFilePath("../../example/file/test.csv")
+	file, err := file.NewFilePath("../../example/file/ula.csv")
 	if err != nil {
 		t.Errorf("Expected no error but got %s", err)
 	}
@@ -132,7 +133,7 @@ func emailsReadByTheWorkers(data csvIn.DataCsv, index int) {
 
 func TestWorkersSendingEmailsPlain(t *testing.T) {
 	var waitgroup sync.WaitGroup
-	file, err := file.NewFilePath("../../example/file/test.csv")
+	file, err := file.NewFilePath("ula.csv")
 	if err != nil {
 		t.Errorf("Expected no error but got %s", err)
 	}
@@ -193,4 +194,29 @@ func sendMail(v csvIn.DataCsv, t *testing.T, index int, waitgroup *sync.WaitGrou
 		}
 		email.SendEmailPlain()
 	}
+}
+
+func TestTestWorkersEmailPlain(t *testing.T) {
+	emailCredential, err := email.NewEmailCredential("ula@gmail.com", "xxxx", 587, "smtp.gmail.com")
+	if err != nil {
+		t.Errorf("Expected no error but got %s", err)
+	}
+
+	body := fmt.Sprintln("Sou Paulo estou a fazer teste de envio de email WORKER")
+	subject := fmt.Sprintln("Teste Ula")
+
+	e := NewEmail(subject, body, emailCredential)
+
+	workers := worker.NewWorker(e, "ula.csv")
+	workers.WorkerPlain()
+
+}
+
+func NewEmail(subject string, body string, emailCredential *email.EmailCredential) *email.Email {
+	email := &email.Email{
+		Subject:          subject,
+		Body:             body,
+		IEmailCredential: emailCredential,
+	}
+	return email
 }
