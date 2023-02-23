@@ -97,7 +97,7 @@ func TestSendEmailTemplateHtml(t *testing.T) {
 		t.Error(err)
 	}
 
-	email, err := email.NewEmail("ulatest@gmail.com", "Hello!", "index.html", emailCredential)
+	email, err := email.NewEmail("ulatest@gmail.com", "Hello!", "ula.html", emailCredential)
 	if err != nil {
 		t.Error(err)
 	}
