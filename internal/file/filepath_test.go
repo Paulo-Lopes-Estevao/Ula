@@ -66,7 +66,7 @@ func TestDirPath(t *testing.T) {
 
 func TestNewPath(t *testing.T) {
 
-	basepath := "../../file/test.csv"
+	basepath := "../../file/ula.csv"
 
 	filePath, err := NewFilePath(basepath)
 	if err != nil {
