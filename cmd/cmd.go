@@ -2,7 +2,7 @@ package cmd
 
 import "github.com/spf13/cobra"
 
-var version = "0.0.1"
+var version = "0.1.0"
 
 var RootCmd = &cobra.Command{
 	Use:     "ula",
